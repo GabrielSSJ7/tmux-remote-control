@@ -1,3 +1,6 @@
+pub mod error;
+pub mod models;
+
 use axum::{routing::get, Router};
 
 async fn health() -> &'static str {
