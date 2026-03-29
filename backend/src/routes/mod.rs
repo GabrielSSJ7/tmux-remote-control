@@ -1,5 +1,6 @@
 pub mod commands;
 pub mod sessions;
+pub mod terminal;
 
 use axum::routing::{get, post, delete};
 use axum::Router;
@@ -15,4 +16,5 @@ pub fn api_routes() -> Router<Arc<AppState>> {
         .route("/sessions/:id", delete(sessions::delete))
         .route("/sessions/:id/status", get(sessions::status))
         .route("/sessions/:id/exec", post(sessions::exec))
+        .route("/sessions/:id/terminal", get(terminal::ws_handler))
 }
