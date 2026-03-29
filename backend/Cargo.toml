@@ -19,7 +19,9 @@ chrono = { version = "0.4", features = ["serde"] }
 portable-pty = "0.8"
 toml = "0.8"
 subtle = "2"
+hex = "0.4"
 
 [dev-dependencies]
 tower = { version = "0.4", features = ["util"] }
 http-body-util = "0.1"
+tempfile = "3"
