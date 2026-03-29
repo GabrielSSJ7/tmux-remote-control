@@ -78,7 +78,10 @@ pub async fn exec(
         .bind(&input.command_id)
         .fetch_optional(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?
         .ok_or_else(|| AppError::NotFound(format!("Command {} not found", input.command_id)))?;
     TmuxManager::send_keys(&name, &cmd.command)
         .await

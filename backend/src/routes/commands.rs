@@ -14,7 +14,10 @@ pub async fn list(
     let commands = sqlx::query_as::<_, Command>("SELECT * FROM commands ORDER BY category, name")
         .fetch_all(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
     Ok(Json(commands))
 }
 
@@ -37,7 +40,10 @@ pub async fn create(
         .bind(&now)
         .execute(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
     let command = Command {
         id,
         name: input.name,
@@ -62,7 +68,10 @@ pub async fn update(
         .bind(&id)
         .fetch_optional(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?
         .ok_or_else(|| AppError::NotFound(format!("Command {} not found", id)))?;
     let now = chrono::Utc::now().to_rfc3339();
     let name = input.name.unwrap_or(existing.name);
@@ -80,7 +89,10 @@ pub async fn update(
         .bind(&id)
         .execute(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
     Ok(Json(Command { id, name, command, description, category, icon, created_at: existing.created_at, updated_at: now }))
 }
 
@@ -94,7 +106,10 @@ pub async fn delete(
         .bind(&id)
         .execute(&state.db)
         .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!("Database error: {}", e);
+            AppError::Internal("Database error".to_string())
+        })?;
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound(format!("Command {} not found", id)));
     }

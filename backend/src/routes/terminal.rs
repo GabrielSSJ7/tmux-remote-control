@@ -3,6 +3,7 @@ use axum::extract::{Path, Query, State};
 use axum::response::IntoResponse;
 use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use std::sync::Arc;
+use subtle::ConstantTimeEq;
 use tokio::sync::mpsc;
 use crate::error::AppError;
 use crate::protocol::{Frame, SessionEventPayload};
@@ -21,7 +22,9 @@ pub async fn ws_handler(
     Path(session_id): Path<String>,
     Query(query): Query<WsQuery>,
 ) -> Result<impl IntoResponse, AppError> {
-    if query.token != state.config.auth.token {
+    let expected = state.config.auth.token.as_bytes();
+    let provided = query.token.as_bytes();
+    if expected.len() != provided.len() || expected.ct_eq(provided).unwrap_u8() != 1 {
         return Err(AppError::Unauthorized);
     }
     if !TmuxManager::session_exists(&session_id).await {
@@ -56,7 +59,7 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
     cmd.arg("-t");
     cmd.arg(&session_id);
 
-    let _child = match pair.slave.spawn_command(cmd) {
+    let child = match pair.slave.spawn_command(cmd) {
         Ok(c) => c,
         Err(_) => {
             let frame = Frame::SessionEvent(SessionEventPayload {
@@ -148,8 +151,11 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
     }
 
     drop(ws_tx);
+    drop(master);
     read_handle.abort();
+    let _ = read_handle.await;
     let _ = write_handle.await;
+    drop(child);
 
     let event = Frame::SessionEvent(SessionEventPayload {
         event_type: "detached".to_string(),

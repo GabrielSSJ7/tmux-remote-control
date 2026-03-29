@@ -65,8 +65,9 @@ Binary frame protocol:
 |---|---|
 | `0x00` | **Data** -- raw terminal bytes (output from server, input from client) |
 | `0x01` | **Resize** -- `{cols, rows}` JSON when screen rotates or font changes |
-| `0x02` | **Ping/Pong** -- heartbeat every 15s |
-| `0x03` | **Session event** -- notifications (session created, ended, etc) |
+| `0x02` | **Ping** -- heartbeat request every 15s |
+| `0x03` | **Pong** -- heartbeat response |
+| `0x04` | **Session event** -- notifications (session created, ended, etc) |
 
 ## Security
 
