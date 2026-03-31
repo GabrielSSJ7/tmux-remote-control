@@ -98,4 +98,36 @@ default_shell = "/bin/bash"
         assert!(!config.auth.token.is_empty());
         assert_eq!(config.auth.token.len(), 64);
     }
+
+    #[test]
+    fn auth_config_debug_redacted() {
+        let auth = AuthConfig { token: "supersecrettoken123".to_string() };
+        let debug_output = format!("{:?}", auth);
+        assert!(debug_output.contains("[REDACTED]"), "Debug output must contain [REDACTED]");
+        assert!(!debug_output.contains("supersecrettoken123"), "Debug output must NOT contain the actual token");
+    }
+
+    #[test]
+    fn load_config_writes_token_to_disk() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+        let mut f = std::fs::File::create(&path).unwrap();
+        write!(f, r#"
+[server]
+host = "127.0.0.1"
+port = 48322
+
+[auth]
+token = ""
+
+[terminal]
+scrollback_lines = 10000
+default_shell = "/bin/bash"
+"#).unwrap();
+        let config = load_config(path.to_str().unwrap()).unwrap();
+        let token = &config.auth.token;
+        assert!(!token.is_empty(), "Token should have been generated");
+        let source = std::fs::read_to_string(&path).unwrap();
+        assert!(source.contains(token), "Token should be written to the config file on disk");
+    }
 }
