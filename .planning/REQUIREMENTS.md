@@ -28,7 +28,7 @@
 
 ### Android Token Security
 
-- [ ] **AND-01**: Auth token stored using EncryptedSharedPreferences instead of plaintext DataStore
+- [ ] **AND-01**: Auth token stored encrypted using Android Keystore AES-256-GCM in DataStore instead of plaintext DataStore
 - [ ] **AND-02**: Token field in SettingsScreen uses PasswordVisualTransformation (masked by default)
 - [ ] **AND-03**: MainActivity sets FLAG_SECURE to prevent screenshots and screen recording
 
@@ -87,4 +87,4 @@
 
 ---
 *Requirements defined: 2026-03-31*
-*Last updated: 2026-03-31 — roadmap finalized, traceability confirmed*
+*Last updated: 2026-03-31 — AND-01 wording updated: EncryptedSharedPreferences replaced with Android Keystore AES-256-GCM in DataStore (ESP deprecated June 2025)*

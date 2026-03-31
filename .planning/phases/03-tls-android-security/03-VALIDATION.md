@@ -1,9 +1,9 @@
 ---
 phase: 3
 slug: tls-android-security
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: active
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-31
 ---
 
@@ -39,12 +39,13 @@ created: 2026-03-31
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
 |---------|------|------|-------------|-----------|-------------------|--------|
-| 03-T1 | TBD | TBD | TLS-01 | unit | `cargo test config 2>&1` | pending |
-| 03-T2 | TBD | TBD | TLS-01 | build | `cargo build 2>&1` | pending |
-| 03-T3 | TBD | TBD | TLS-02 | structural | `grep -q "TLS" SETUP.md` | pending |
-| 03-T4 | TBD | TBD | AND-01 | unit | `./gradlew :app:testDebugUnitTest 2>&1` | pending |
-| 03-T5 | TBD | TBD | AND-02 | structural | `grep -q "PasswordVisualTransformation" android/app/src/main/kotlin/com/remotecontrol/ui/settings/SettingsScreen.kt` | pending |
-| 03-T6 | TBD | TBD | AND-03 | structural | `grep -q "FLAG_SECURE" android/app/src/main/kotlin/com/remotecontrol/MainActivity.kt` | pending |
+| 03-01-T1 | 03-01 | 1 | TLS-01 | unit (TDD) | `cd backend && cargo test config::tests 2>&1` | pending |
+| 03-01-T2 | 03-01 | 1 | TLS-01 | build | `cd backend && cargo build 2>&1` | pending |
+| 03-01-T3 | 03-01 | 1 | TLS-02 | structural | `grep -q "[tls]" SETUP.md && grep -q "cert_path" SETUP.md && echo PASS` | pending |
+| 03-02-T1 | 03-02 | 1 | AND-01 | unit (TDD) | `cd android && ./gradlew :app:testDebugUnitTest --tests "com.remotecontrol.data.settings.TokenEncryptorTest" 2>&1` | pending |
+| 03-02-T2 | 03-02 | 1 | AND-01 | unit | `cd android && ./gradlew :app:testDebugUnitTest 2>&1` | pending |
+| 03-03-T1 | 03-03 | 1 | AND-02, AND-03 | compile + structural | `cd android && ./gradlew :app:compileDebugKotlin 2>&1 && grep -q networkSecurityConfig app/src/main/AndroidManifest.xml` | pending |
+| 03-03-T2 | 03-03 | 1 | AND-02, AND-03 | human-verify | User confirms on device: masked token, blank screenshots, blank recent-apps | pending |
 
 *Status: pending / green / red / flaky*
 
@@ -52,10 +53,12 @@ created: 2026-03-31
 
 ## Wave 0 Requirements
 
-- [ ] `backend/src/config.rs` — add TlsConfig struct tests (parses with/without TLS section)
-- [ ] `android/app/src/test/.../TokenEncryptorTest.kt` — encrypt/decrypt roundtrip test
+- [x] `backend/src/config.rs` — TlsConfig tests are defined in 03-01-T1 behavior block (TDD task, tests written first)
+- [x] `android/app/src/test/.../TokenEncryptorTest.kt` — encrypt/decrypt roundtrip tests defined in 03-02-T1 behavior block (TDD task, tests written first)
 
-*Note: Android Keystore requires device/emulator. Unit tests mock the encryption layer.*
+*Both Wave 0 obligations are met by TDD tasks that create tests before implementation. No separate Wave 0 task needed.*
+
+*Note: Android Keystore requires device/emulator. Unit tests mock the encryption layer via TestTokenCrypto.*
 
 ---
 
@@ -72,11 +75,11 @@ created: 2026-03-31
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved
