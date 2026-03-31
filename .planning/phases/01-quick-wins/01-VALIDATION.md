@@ -2,7 +2,7 @@
 phase: 1
 slug: quick-wins
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-31
 ---
@@ -36,26 +36,22 @@ created: 2026-03-31
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 1-01-01 | 01 | 0 | LOG-01 | unit | `cargo test load_config_log_redacted` | ❌ W0 | ⬜ pending |
-| 1-01-02 | 01 | 0 | LOG-02 | unit | `cargo test auth_config_debug_redacted` | ❌ W0 | ⬜ pending |
-| 1-01-03 | 01 | 0 | NET-03 | unit | `cargo test default_bind_address` | ❌ W0 | ⬜ pending |
-| 1-02-01 | 02 | 1 | SEC-01 | manual | `git status backend/config.toml` | N/A | ⬜ pending |
-| 1-02-02 | 02 | 1 | SEC-02 | manual | `git check-ignore test.env test.key` | N/A | ⬜ pending |
-| 1-03-01 | 03 | 1 | LOG-01 | unit | `cargo test load_config_log_redacted` | ❌ W0 | ⬜ pending |
-| 1-03-02 | 03 | 1 | LOG-02 | unit | `cargo test auth_config_debug_redacted` | ❌ W0 | ⬜ pending |
-| 1-04-01 | 04 | 1 | NET-03 | unit | `cargo test default_bind_address` | ❌ W0 | ⬜ pending |
+| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
+|---------|------|------|-------------|-----------|-------------------|--------|
+| 01-01-T1 | 01 | 1 | SEC-01, SEC-02 | git-state | `git check-ignore backend/config.toml && git ls-files --error-unmatch backend/config.toml 2>&1 \| grep "did not match"` | pending |
+| 01-01-T2 | 01 | 1 | NET-03 | unit (TDD) | `cargo test default_bind_address` | pending |
+| 01-02-T1 | 02 | 1 | LOG-02 | unit (TDD, RED) | `cargo test auth_config_debug_redacted` | pending |
+| 01-02-T2 | 02 | 1 | LOG-01, LOG-02 | unit (GREEN) + structural | `cargo test auth_config_debug_redacted && cargo test load_config_writes_token_to_disk && grep 'REDACTED' backend/src/config.rs` | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `backend/src/config.rs` — add `load_config_log_redacted` test stub for LOG-01
-- [ ] `backend/src/config.rs` — add `auth_config_debug_redacted` test stub for LOG-02
-- [ ] `backend/src/config.rs` — add `default_bind_address` test stub for NET-03
+- [ ] `backend/src/config.rs` — add `default_bind_address` test stub for NET-03 (plan 01, Task 2 TDD)
+- [ ] `backend/src/config.rs` — add `auth_config_debug_redacted` test stub for LOG-02 (plan 02, Task 1 TDD)
+- [ ] `backend/src/config.rs` — add `load_config_writes_token_to_disk` test for LOG-01 file-write path (plan 02, Task 1)
 
 *Existing test framework (cargo test) covers infrastructure needs.*
 
@@ -70,13 +66,22 @@ created: 2026-03-31
 
 ---
 
+## Structural Verifications (grep-based, no test runner)
+
+| Behavior | Requirement | Why Structural | Automated Command |
+|----------|-------------|----------------|-------------------|
+| println uses [REDACTED] not raw token | LOG-01 | Stdout capture in Rust tests requires fd redirection; single-line edit verified by pattern match | `grep 'Generated new auth token: \[REDACTED\]' backend/src/config.rs` |
+
+---
+
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
+- [x] Per-task map references only plans 01 and 02 (the only existing plans)
 
-**Approval:** pending
+**Approval:** ready
