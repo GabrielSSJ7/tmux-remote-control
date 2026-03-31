@@ -18,8 +18,8 @@
 
 ### Token Logging
 
-- [ ] **LOG-01**: Auth token is never printed to stdout — first-run message shows redacted value
-- [ ] **LOG-02**: AuthConfig does not derive Debug — prevents token in panic backtraces and debug logs
+- [x] **LOG-01**: Auth token is never printed to stdout — first-run message shows redacted value
+- [x] **LOG-02**: AuthConfig does not derive Debug — prevents token in panic backtraces and debug logs
 
 ### Transport Security
 
@@ -66,8 +66,8 @@
 |-------------|-------|--------|
 | SEC-01 | Phase 1 | Pending |
 | SEC-02 | Phase 1 | Pending |
-| LOG-01 | Phase 1 | Pending |
-| LOG-02 | Phase 1 | Pending |
+| LOG-01 | Phase 1 | Complete |
+| LOG-02 | Phase 1 | Complete |
 | NET-03 | Phase 1 | Pending |
 | TOK-01 | Phase 2 | Pending |
 | TOK-02 | Phase 2 | Pending |

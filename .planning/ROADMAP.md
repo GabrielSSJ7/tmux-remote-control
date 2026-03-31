@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Starting the backend and checking stdout shows the token as `[REDACTED]`, never the actual value
   4. A panic or debug print involving AuthConfig does not expose the token value
   5. A fresh `cargo run` binds to `127.0.0.1` by default — `ss -tlnp` shows no `0.0.0.0` entry for the server port
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 01-01-PLAN.md — Git hygiene (.gitignore, untrack config.toml) and secure default bind address
 - [ ] 01-02-PLAN.md — Token log redaction (manual Debug impl, redacted println)
@@ -72,6 +72,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Quick Wins | 0/2 | Planned | - |
+| 1. Quick Wins | 1/2 | In Progress|  |
 | 2. Protocol & Network Hardening | 0/3 | Planned | - |
 | 3. TLS & Android Security | 0/3 | Planned | - |
