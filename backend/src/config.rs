@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use rand::Rng;
+use std::fmt;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
@@ -14,9 +15,17 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct AuthConfig {
     pub token: String,
+}
+
+impl fmt::Debug for AuthConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AuthConfig")
+            .field("token", &"[REDACTED]")
+            .finish()
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -40,7 +49,7 @@ pub fn load_config(path: &str) -> Result<Config, Box<dyn std::error::Error>> {
         config.auth.token = generate_token();
         let updated = toml::to_string_pretty(&config)?;
         std::fs::write(path, updated)?;
-        println!("Generated new auth token: {}", config.auth.token);
+        println!("Generated new auth token: [REDACTED]");
     }
     Ok(config)
 }
@@ -97,6 +106,13 @@ default_shell = "/bin/bash"
         let config = load_config(path.to_str().unwrap()).unwrap();
         assert!(!config.auth.token.is_empty());
         assert_eq!(config.auth.token.len(), 64);
+    }
+
+    #[test]
+    fn default_bind_address() {
+        let toml_str = include_str!("../config.toml.example");
+        let config: Config = toml::from_str(toml_str).unwrap();
+        assert_eq!(config.server.host, "127.0.0.1");
     }
 
     #[test]
