@@ -29,9 +29,9 @@ fun TerminalRenderer(
 ) {
     val paint = remember {
         Paint().apply {
-            typeface = Typeface.create("sans-serif-condensed", Typeface.NORMAL)
+            typeface = Typeface.MONOSPACE
             isAntiAlias = true
-            letterSpacing = -0.05f
+            textScaleX = 0.85f
         }
     }
     var currentFontSize by remember { mutableFloatStateOf(fontSize) }
