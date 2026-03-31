@@ -7,8 +7,8 @@
 
 ### Secrets Protection
 
-- [ ] **SEC-01**: config.toml with auth token is excluded from git tracking via root .gitignore
-- [ ] **SEC-02**: Root .gitignore also protects *.env, *.key, *.pem, *.cert files from accidental commit
+- [x] **SEC-01**: config.toml with auth token is excluded from git tracking via root .gitignore
+- [x] **SEC-02**: Root .gitignore also protects *.env, *.key, *.pem, *.cert files from accidental commit
 
 ### Token Transmission
 
@@ -36,7 +36,7 @@
 
 - [ ] **NET-01**: CorsLayer configured with explicit allowed origins instead of permissive()
 - [ ] **NET-02**: WebSocket endpoint applies rate limiting before token validation
-- [ ] **NET-03**: Default bind address changed from 0.0.0.0 to 127.0.0.1 in config.toml
+- [x] **NET-03**: Default bind address changed from 0.0.0.0 to 127.0.0.1 in config.toml
 
 ## v2 Requirements
 
@@ -64,11 +64,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 1 | Pending |
-| SEC-02 | Phase 1 | Pending |
+| SEC-01 | Phase 1 | Complete |
+| SEC-02 | Phase 1 | Complete |
 | LOG-01 | Phase 1 | Complete |
 | LOG-02 | Phase 1 | Complete |
-| NET-03 | Phase 1 | Pending |
+| NET-03 | Phase 1 | Complete |
 | TOK-01 | Phase 2 | Pending |
 | TOK-02 | Phase 2 | Pending |
 | TOK-03 | Phase 2 | Pending |

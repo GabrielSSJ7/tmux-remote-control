@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-31)
 
 **Core value:** Auth token must never be exposed through git, logs, URLs, or cleartext traffic
-**Current focus:** Phase 1 — Quick Wins
+**Current focus:** Phase 1 Complete — Ready for Phase 2 (Protocol & Network Hardening)
 
 ## Current Position
 
