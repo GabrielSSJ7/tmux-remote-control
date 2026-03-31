@@ -34,6 +34,7 @@ pub async fn ws_handler(
 }
 
 async fn handle_socket(mut socket: WebSocket, session_id: String) {
+    tracing::info!("WS connected for session: {}", session_id);
     let pty_system = native_pty_system();
     let size = PtySize {
         rows: 24,
@@ -43,8 +44,9 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
     };
 
     let pair = match pty_system.openpty(size) {
-        Ok(p) => p,
-        Err(_) => {
+        Ok(p) => { tracing::info!("PTY opened"); p }
+        Err(e) => {
+            tracing::error!("PTY open failed: {}", e);
             let frame = Frame::SessionEvent(SessionEventPayload {
                 event_type: "error".to_string(),
                 session_id: session_id.clone(),
@@ -60,8 +62,9 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
     cmd.arg(&session_id);
 
     let child = match pair.slave.spawn_command(cmd) {
-        Ok(c) => c,
-        Err(_) => {
+        Ok(c) => { tracing::info!("tmux attach spawned"); c }
+        Err(e) => {
+            tracing::error!("tmux spawn failed: {}", e);
             let frame = Frame::SessionEvent(SessionEventPayload {
                 event_type: "error".to_string(),
                 session_id: session_id.clone(),
@@ -90,13 +93,14 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
         let mut buf = [0u8; 4096];
         loop {
             match std::io::Read::read(&mut reader, &mut buf) {
-                Ok(0) => break,
+                Ok(0) => { tracing::info!("PTY reader: EOF"); break; }
                 Ok(n) => {
                     if pty_tx.blocking_send(buf[..n].to_vec()).is_err() {
+                        tracing::info!("PTY reader: channel closed");
                         break;
                     }
                 }
-                Err(_) => break,
+                Err(e) => { tracing::error!("PTY reader error: {}", e); break; }
             }
         }
     });
@@ -110,12 +114,22 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
         }
     });
 
+    tracing::info!("Entering main WS loop");
     loop {
         tokio::select! {
-            Some(data) = pty_rx.recv() => {
-                let frame = Frame::Data(data);
-                if socket.send(Message::Binary(frame.encode().into())).await.is_err() {
-                    break;
+            pty_msg = pty_rx.recv() => {
+                match pty_msg {
+                    Some(data) => {
+                        let frame = Frame::Data(data);
+                        if socket.send(Message::Binary(frame.encode().into())).await.is_err() {
+                            tracing::info!("WS send failed, breaking");
+                            break;
+                        }
+                    }
+                    None => {
+                        tracing::info!("PTY channel closed (process exited)");
+                        break;
+                    }
                 }
             }
             msg = socket.recv() => {
@@ -124,6 +138,7 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
                         match Frame::decode(&data) {
                             Ok(Frame::Data(input)) => {
                                 if ws_tx.send(input).await.is_err() {
+                                    tracing::info!("WS write channel closed");
                                     break;
                                 }
                             }
@@ -143,7 +158,8 @@ async fn handle_socket(mut socket: WebSocket, session_id: String) {
                             _ => {}
                         }
                     }
-                    Some(Ok(Message::Close(_))) | None => break,
+                    Some(Ok(Message::Close(f))) => { tracing::info!("WS close frame: {:?}", f); break; }
+                    None => { tracing::info!("WS recv None (disconnected)"); break; }
                     _ => {}
                 }
             }

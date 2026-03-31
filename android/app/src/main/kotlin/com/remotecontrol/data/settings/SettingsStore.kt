@@ -13,7 +13,7 @@ class SettingsStore(context: Context) {
 
     val serverUrl: Flow<String> = store.data.map { it[KEY_SERVER_URL] ?: "" }
     val token: Flow<String> = store.data.map { it[KEY_TOKEN] ?: "" }
-    val fontSize: Flow<Int> = store.data.map { it[KEY_FONT_SIZE] ?: 14 }
+    val fontSize: Flow<Int> = store.data.map { it[KEY_FONT_SIZE] ?: 8 }
     val darkMode: Flow<Boolean> = store.data.map { it[KEY_DARK_MODE] ?: true }
     val scrollbackLines: Flow<Int> = store.data.map { it[KEY_SCROLLBACK] ?: 10000 }
 

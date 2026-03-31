@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(private val app: App) : ViewModel() {
     val serverUrl = app.settings.serverUrl.stateIn(viewModelScope, SharingStarted.Lazily, "")
     val token = app.settings.token.stateIn(viewModelScope, SharingStarted.Lazily, "")
-    val fontSize = app.settings.fontSize.stateIn(viewModelScope, SharingStarted.Lazily, 14)
+    val fontSize = app.settings.fontSize.stateIn(viewModelScope, SharingStarted.Lazily, 8)
     val darkMode = app.settings.darkMode.stateIn(viewModelScope, SharingStarted.Lazily, true)
     val scrollbackLines = app.settings.scrollbackLines.stateIn(viewModelScope, SharingStarted.Lazily, 10000)
 

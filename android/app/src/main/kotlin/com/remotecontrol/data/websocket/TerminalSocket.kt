@@ -32,7 +32,13 @@ class TerminalSocket(
 
     fun connect(baseUrl: String, sessionId: String, token: String) {
         disconnect()
-        val wsUrl = baseUrl.replace("http", "ws") + "sessions/$sessionId/terminal?token=$token"
+        val normalized = baseUrl.trimEnd('/')
+        val wsBase = when {
+            normalized.startsWith("https://") -> normalized.replaceFirst("https://", "wss://")
+            normalized.startsWith("http://") -> normalized.replaceFirst("http://", "ws://")
+            else -> "ws://$normalized"
+        }
+        val wsUrl = "$wsBase/sessions/$sessionId/terminal?token=$token"
         currentUrl = wsUrl
         reconnector.reset()
         doConnect(wsUrl)

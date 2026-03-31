@@ -16,19 +16,27 @@ import com.remotecontrol.App
 @Composable
 fun SettingsScreen(app: App, onBack: () -> Unit) {
     val vm = remember { SettingsViewModel(app) }
-    val serverUrl by vm.serverUrl.collectAsState()
-    val token by vm.token.collectAsState()
+    val storedUrl by vm.serverUrl.collectAsState()
+    val storedToken by vm.token.collectAsState()
     val fontSize by vm.fontSize.collectAsState()
     val darkMode by vm.darkMode.collectAsState()
     val scrollback by vm.scrollbackLines.collectAsState()
+
+    var urlField by remember { mutableStateOf("") }
+    var tokenField by remember { mutableStateOf("") }
+    var urlInitialized by remember { mutableStateOf(false) }
+    var tokenInitialized by remember { mutableStateOf(false) }
+
+    if (!urlInitialized && storedUrl.isNotEmpty()) { urlField = storedUrl; urlInitialized = true }
+    if (!tokenInitialized && storedToken.isNotEmpty()) { tokenField = storedToken; tokenInitialized = true }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Settings") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Connection", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(value = serverUrl, onValueChange = { vm.setServerUrl(it) }, label = { Text("Server URL") }, placeholder = { Text("http://192.168.1.100:48322/") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(value = token, onValueChange = { vm.setToken(it) }, label = { Text("Auth Token") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = urlField, onValueChange = { urlField = it; vm.setServerUrl(it) }, label = { Text("Server URL") }, placeholder = { Text("http://192.168.1.100:48322/") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(value = tokenField, onValueChange = { tokenField = it; vm.setToken(it) }, label = { Text("Auth Token") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             HorizontalDivider()
             Text("Terminal", style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.CenterVertically) {
