@@ -2,7 +2,7 @@
 phase: 2
 slug: protocol-network-hardening
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-31
 ---
@@ -37,14 +37,16 @@ created: 2026-03-31
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
-|---------|------|------|-------------|-----------|-------------------|--------|
-| 02-T1 | TBD | TBD | TOK-01 | unit | `cargo test protocol 2>&1` | pending |
-| 02-T2 | TBD | TBD | TOK-01 | unit | `./gradlew :app:testDebugUnitTest --tests "*.ProtocolTest"` | pending |
-| 02-T3 | TBD | TBD | TOK-02 | unit | `cargo test ws_auth 2>&1` | pending |
-| 02-T4 | TBD | TBD | TOK-03 | unit | `./gradlew :app:testDebugUnitTest --tests "*.TerminalSocketTest"` | pending |
-| 02-T5 | TBD | TBD | NET-01 | unit | `cargo test cors 2>&1` | pending |
-| 02-T6 | TBD | TBD | NET-02 | unit | `cargo test rate_limit 2>&1` | pending |
+| Task ID | Plan | Task | Wave | Requirement | Test Type | Automated Command | Status |
+|---------|------|------|------|-------------|-----------|-------------------|--------|
+| 02-01-T1 | 02-01 | Frame::Auth variant | 1 | TOK-01 | unit | `cargo test protocol 2>&1` | pending |
+| 02-01-T2 | 02-01 | ws_auth test stubs | 1 | TOK-02 | stub | `cargo test ws_auth -- --ignored 2>&1` | pending |
+| 02-01-T3 | 02-01 | ws_handler rewrite | 1 | TOK-02, NET-02 | build+unit | `cargo build 2>&1 && cargo test 2>&1` | pending |
+| 02-02-T1 | 02-02 | Frame.Auth (Android) | 1 | TOK-01 | unit | `./gradlew :app:testDebugUnitTest --tests "*.ProtocolTest"` | pending |
+| 02-02-T2 | 02-02 | TerminalSocket rewrite + stubs | 1 | TOK-03 | unit+stub | `./gradlew :app:testDebugUnitTest 2>&1` | pending |
+| 02-03-T1 | 02-03 | allowed_origins config | 1 | NET-01 | unit | `cargo test config 2>&1` | pending |
+| 02-03-T2 | 02-03 | cors test stubs | 1 | NET-01 | stub | `cargo test cors -- --ignored 2>&1` | pending |
+| 02-03-T3 | 02-03 | CorsLayer replacement | 1 | NET-01 | build+unit | `cargo build 2>&1 && cargo test 2>&1` | pending |
 
 *Status: pending / green / red / flaky*
 
@@ -52,13 +54,13 @@ created: 2026-03-31
 
 ## Wave 0 Requirements
 
-- [ ] `backend/src/protocol.rs` — add `auth_frame_roundtrip` test for 0x05 frame type
-- [ ] `backend/tests/ws_auth_test.rs` — stubs for reject non-Auth first frame, accept Auth frame
-- [ ] `backend/tests/cors_test.rs` — stubs for known/unknown origin handling
-- [ ] `android/app/src/test/.../ProtocolTest.kt` — extend with `authFrameRoundtrip` test
-- [ ] `android/app/src/test/.../TerminalSocketTest.kt` — stub for Auth frame sent in onOpen
+- [ ] `backend/src/protocol.rs` — add `auth_frame_roundtrip` test for 0x05 frame type (02-01 Task 1)
+- [ ] `backend/tests/ws_auth_test.rs` — ignored stubs for WS auth handshake (02-01 Task 2)
+- [ ] `backend/tests/cors_test.rs` — ignored stubs for CORS origin handling (02-03 Task 2)
+- [ ] `android/app/src/test/.../ProtocolTest.kt` — extend with `authFrameRoundtrip` test (02-02 Task 1)
+- [ ] `android/app/src/test/.../TerminalSocketTest.kt` — ignored stubs for Auth frame in onOpen (02-02 Task 2)
 
-*Existing test framework covers infrastructure needs.*
+*All stub files are created by explicit plan tasks. Stubs use `#[ignore]`/`@Ignore` so the suite stays green.*
 
 ---
 
@@ -73,11 +75,11 @@ created: 2026-03-31
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (ws_auth_test.rs, cors_test.rs, TerminalSocketTest.kt)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
 - [ ] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
