@@ -195,12 +195,70 @@ DNS=8.8.8.8
 
 ---
 
-## 3. TLS (opcional mas recomendado)
+## 3. TLS (obrigatório para produção)
 
-### Opção A: Caddy como reverse proxy
+> **AVISO: TLS é obrigatório para uso em produção.**
+> Sem TLS, o token de autenticação é transmitido em texto simples e pode ser capturado por qualquer pessoa na rede (ex: roteador comprometido, Wi-Fi público, ISP). Nunca exponha o backend na internet sem TLS.
+
+### Opção A: TLS nativo (recomendado)
+
+O backend suporta TLS diretamente via rustls. Não é necessário nenhum proxy.
+
+**Gerar certificado autoassinado:**
 
 ```bash
-# Instalar Caddy
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes \
+  -subj "/CN=remote-control"
+```
+
+Mova os arquivos para um local seguro (ex: `~/certs/`) e configure no `config.toml`:
+
+```toml
+[server]
+host = "0.0.0.0"
+port = 48322
+
+[auth]
+token = ""
+
+[terminal]
+scrollback_lines = 10000
+default_shell = "/bin/bash"
+
+[tls]
+cert_path = "/home/gluz/certs/cert.pem"
+key_path = "/home/gluz/certs/key.pem"
+```
+
+**Verificar TLS ativo:**
+
+```bash
+openssl s_client -connect localhost:48322 -showcerts
+```
+
+Se a conexão for estabelecida e exibir o certificado, o TLS está funcionando.
+
+**No app Android:** atualizar Server URL para usar `https://` e `wss://`:
+
+```
+https://SEU_IP_FIXO:48322/
+```
+
+**Atenção: certificados autoassinados no Android**
+
+O Android rejeita certificados autoassinados por padrão. Para usar um certificado autoassinado, adicione o arquivo `cert.pem` ao projeto Android:
+
+1. Copie `cert.pem` para `android/app/src/main/res/raw/cert.pem`
+2. Referencie no `network_security_config.xml` (já configurado no projeto)
+3. Reconstrua e reinstale o APK
+
+Alternativa sem essa configuração manual: use um certificado CA-válido via Caddy (Opção B).
+
+### Opção B: Caddy como reverse proxy
+
+Alternativa ao TLS nativo. Útil se você já tem um domínio e quer Let's Encrypt automático.
+
+```bash
 sudo pacman -S caddy  # Arch
 # ou: sudo apt install caddy  # Debian/Ubuntu
 
@@ -218,19 +276,9 @@ sudo systemctl enable caddy
 sudo systemctl start caddy
 ```
 
-Caddy gera certificados TLS automaticamente via Let's Encrypt. No app, usar `https://meupc.exemplo.com/` como Server URL.
+Caddy gera certificados TLS automaticamente via Let's Encrypt. No app, usar `https://meupc.exemplo.com/` como Server URL. Certificados Let's Encrypt são aceitos pelo Android sem configuração adicional.
 
 Pré-requisito: um domínio apontando para seu IP fixo (DDNS ou DNS normal).
-
-### Opção B: Self-signed certificate
-
-```bash
-# Gerar certificado
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes \
-  -subj "/CN=remote-control"
-
-# O app Android precisará confiar neste certificado manualmente
-```
 
 ---
 
