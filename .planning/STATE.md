@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-03-31T18:21:11.148Z"
-last_activity: 2026-03-31 — Completed 01-01 git hygiene and secure bind address (Phase 1 complete)
+status: completed
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-01T12:10:46.857Z"
+last_activity: 2026-03-31 — Completed 01-01 git hygiene and secure bind address
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 8
-  completed_plans: 2
+  completed_plans: 3
   percent: 25
 ---
 
@@ -52,6 +52,7 @@ Progress: [███░░░░░░░] 25%
 *Updated after each plan completion*
 | Phase 01 P02 | 2min | 2 tasks | 1 files |
 | Phase 01 P01 | 4min | 2 tasks | 3 files |
+| Phase 02 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - [Phase 01]: Stdout redaction verified structurally by grep, not unit test stdout capture
 - [Phase 01]: Secret-bearing structs use manual fmt::Debug with [REDACTED] instead of derive(Debug)
 - [Phase 01]: Config template pattern: config.toml.example committed with empty secrets, actual config.toml gitignored
+- [Phase 02-02]: Frame.Auth uses ByteArray equals/hashCode override matching existing Data class pattern
+- [Phase 02-02]: Token stored in separate currentToken field, never embedded in URL — eliminates token exposure in OkHttp logs
+- [Phase 02-02]: Frame.Auth sent before CONNECTED state transition and ping loop in onOpen — matches backend first-frame handshake
 
 ### Pending Todos
 
@@ -78,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-31T18:21:11.147Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-04-01T12:10:46.853Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

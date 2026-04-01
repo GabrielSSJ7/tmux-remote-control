@@ -12,9 +12,9 @@
 
 ### Token Transmission
 
-- [ ] **TOK-01**: WebSocket authentication uses first binary frame instead of URL query parameter
+- [x] **TOK-01**: WebSocket authentication uses first binary frame instead of URL query parameter
 - [ ] **TOK-02**: Backend WebSocket handler validates auth frame before accepting terminal data
-- [ ] **TOK-03**: Android TerminalSocket sends auth token as first frame after connection
+- [x] **TOK-03**: Android TerminalSocket sends auth token as first frame after connection
 
 ### Token Logging
 
@@ -69,9 +69,9 @@
 | LOG-01 | Phase 1 | Complete |
 | LOG-02 | Phase 1 | Complete |
 | NET-03 | Phase 1 | Complete |
-| TOK-01 | Phase 2 | Pending |
+| TOK-01 | Phase 2 | Complete |
 | TOK-02 | Phase 2 | Pending |
-| TOK-03 | Phase 2 | Pending |
+| TOK-03 | Phase 2 | Complete |
 | NET-01 | Phase 2 | Pending |
 | NET-02 | Phase 2 | Pending |
 | TLS-01 | Phase 3 | Pending |

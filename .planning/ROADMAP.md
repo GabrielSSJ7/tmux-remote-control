@@ -43,7 +43,7 @@ Plans:
   3. An Android device connects, authenticates, and runs terminal commands successfully using the new first-frame protocol
   4. A curl request with an `Origin` header not in the allowlist receives a CORS rejection (403 or CORS error)
   5. Sending 100+ WebSocket connection attempts from one IP within a minute triggers rate limiting before the auth frame is ever read
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
 - [ ] 02-01-PLAN.md — Backend protocol migration (Frame::Auth, first-frame handshake, WS rate limiting)
 - [ ] 02-02-PLAN.md — Android protocol migration (Frame.Auth, token-free URLs, first-frame auth in onOpen)
@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Quick Wins | 2/2 | Complete   | 2026-03-31 |
-| 2. Protocol & Network Hardening | 0/3 | Planned | - |
+| 2. Protocol & Network Hardening | 1/3 | In Progress|  |
 | 3. TLS & Android Security | 0/3 | Planned | - |
