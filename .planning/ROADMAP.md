@@ -59,7 +59,7 @@ Plans:
   3. Uninstalling and reinstalling the Android app — or accessing the device with root — does not reveal the token in plaintext via `adb shell` file inspection
   4. The token field in SettingsScreen displays dots (masked) by default, not the raw token characters
   5. Android's recent-apps thumbnail and screenshots show a blank/black screen for the app — FLAG_SECURE is active
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
 - [ ] 03-01-PLAN.md — Backend TLS via rustls (axum-server conditional bind) and SETUP.md update
 - [ ] 03-02-PLAN.md — Android encrypted token storage (Keystore AES-256-GCM + DataStore)
@@ -74,4 +74,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Quick Wins | 2/2 | Complete   | 2026-03-31 |
 | 2. Protocol & Network Hardening | 3/3 | Complete   | 2026-04-01 |
-| 3. TLS & Android Security | 1/3 | In Progress|  |
+| 3. TLS & Android Security | 2/3 | In Progress|  |
