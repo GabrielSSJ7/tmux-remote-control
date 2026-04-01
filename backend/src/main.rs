@@ -23,7 +23,7 @@ async fn main() {
         rate_limiter,
     });
 
-    let app = create_router().with_state(state);
+    let app = create_router(&config.server.allowed_origins).with_state(state);
     let addr = format!("{}:{}", config.server.host, config.server.port);
     let listener = TcpListener::bind(&addr).await.unwrap();
     tracing::info!("Listening on {}", addr);
