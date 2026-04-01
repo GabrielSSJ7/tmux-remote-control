@@ -13,7 +13,7 @@ This milestone eliminates 9 security vulnerabilities discovered during a compreh
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Quick Wins** - Git hygiene, log redaction, and default bind address — zero breaking changes (completed 2026-03-31)
-- [ ] **Phase 2: Protocol & Network Hardening** - WebSocket auth migration to first frame, CORS lockdown, WS rate limiting
+- [x] **Phase 2: Protocol & Network Hardening** - WebSocket auth migration to first frame, CORS lockdown, WS rate limiting (completed 2026-04-01)
 - [ ] **Phase 3: TLS & Android Security** - rustls TLS support, encrypted token storage, UI masking on Android
 
 ## Phase Details
@@ -43,7 +43,7 @@ Plans:
   3. An Android device connects, authenticates, and runs terminal commands successfully using the new first-frame protocol
   4. A curl request with an `Origin` header not in the allowlist receives a CORS rejection (403 or CORS error)
   5. Sending 100+ WebSocket connection attempts from one IP within a minute triggers rate limiting before the auth frame is ever read
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] 02-01-PLAN.md — Backend protocol migration (Frame::Auth, first-frame handshake, WS rate limiting)
 - [ ] 02-02-PLAN.md — Android protocol migration (Frame.Auth, token-free URLs, first-frame auth in onOpen)
@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Quick Wins | 2/2 | Complete   | 2026-03-31 |
-| 2. Protocol & Network Hardening | 1/3 | In Progress|  |
+| 2. Protocol & Network Hardening | 3/3 | Complete   | 2026-04-01 |
 | 3. TLS & Android Security | 0/3 | Planned | - |

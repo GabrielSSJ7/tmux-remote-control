@@ -34,7 +34,7 @@
 
 ### Network Hardening
 
-- [ ] **NET-01**: CorsLayer configured with explicit allowed origins instead of permissive()
+- [x] **NET-01**: CorsLayer configured with explicit allowed origins instead of permissive()
 - [ ] **NET-02**: WebSocket endpoint applies rate limiting before token validation
 - [x] **NET-03**: Default bind address changed from 0.0.0.0 to 127.0.0.1 in config.toml
 
@@ -72,7 +72,7 @@
 | TOK-01 | Phase 2 | Complete |
 | TOK-02 | Phase 2 | Pending |
 | TOK-03 | Phase 2 | Complete |
-| NET-01 | Phase 2 | Pending |
+| NET-01 | Phase 2 | Complete |
 | NET-02 | Phase 2 | Pending |
 | TLS-01 | Phase 3 | Pending |
 | TLS-02 | Phase 3 | Pending |
