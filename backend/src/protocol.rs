@@ -5,6 +5,7 @@ const TYPE_RESIZE: u8 = 0x01;
 const TYPE_PING: u8 = 0x02;
 const TYPE_PONG: u8 = 0x03;
 const TYPE_SESSION_EVENT: u8 = 0x04;
+const TYPE_AUTH: u8 = 0x05;
 
 #[derive(Debug, PartialEq)]
 pub enum Frame {
@@ -13,6 +14,7 @@ pub enum Frame {
     Ping,
     Pong,
     SessionEvent(SessionEventPayload),
+    Auth(Vec<u8>),
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -46,6 +48,12 @@ impl Frame {
                 buf.extend_from_slice(&json);
                 buf
             }
+            Frame::Auth(token) => {
+                let mut buf = Vec::with_capacity(1 + token.len());
+                buf.push(TYPE_AUTH);
+                buf.extend_from_slice(token);
+                buf
+            }
         }
     }
 
@@ -70,6 +78,7 @@ impl Frame {
                     .map_err(|e| format!("Invalid session event: {}", e))?;
                 Ok(Frame::SessionEvent(payload))
             }
+            TYPE_AUTH => Ok(Frame::Auth(data[1..].to_vec())),
             t => Err(format!("Unknown frame type: 0x{:02x}", t)),
         }
     }
@@ -131,5 +140,31 @@ mod tests {
     #[test]
     fn resize_too_short_returns_error() {
         assert!(Frame::decode(&[TYPE_RESIZE, 0x00]).is_err());
+    }
+
+    #[test]
+    fn auth_frame_roundtrip() {
+        let frame = Frame::Auth(b"my-secret-token".to_vec());
+        let encoded = frame.encode();
+        assert_eq!(encoded[0], TYPE_AUTH);
+        let decoded = Frame::decode(&encoded).unwrap();
+        assert_eq!(decoded, frame);
+    }
+
+    #[test]
+    fn auth_frame_empty_token() {
+        let frame = Frame::Auth(vec![]);
+        let encoded = frame.encode();
+        assert_eq!(encoded[0], TYPE_AUTH);
+        assert_eq!(encoded.len(), 1);
+        let decoded = Frame::decode(&encoded).unwrap();
+        assert_eq!(decoded, frame);
+    }
+
+    #[test]
+    fn auth_frame_type_byte() {
+        let frame = Frame::Auth(b"test-token".to_vec());
+        let encoded = frame.encode();
+        assert_eq!(encoded[0], 0x05);
     }
 }
