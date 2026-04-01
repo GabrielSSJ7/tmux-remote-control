@@ -12,13 +12,18 @@ class SettingsStore(context: Context) {
     private val store = context.dataStore
 
     val serverUrl: Flow<String> = store.data.map { it[KEY_SERVER_URL] ?: "" }
-    val token: Flow<String> = store.data.map { it[KEY_TOKEN] ?: "" }
+    val token: Flow<String> = store.data.map { prefs ->
+        val stored = prefs[KEY_TOKEN] ?: ""
+        if (stored.isEmpty()) "" else TokenEncryptor.decrypt(stored)
+    }
     val fontSize: Flow<Int> = store.data.map { it[KEY_FONT_SIZE] ?: 8 }
     val darkMode: Flow<Boolean> = store.data.map { it[KEY_DARK_MODE] ?: true }
     val scrollbackLines: Flow<Int> = store.data.map { it[KEY_SCROLLBACK] ?: 10000 }
 
     suspend fun setServerUrl(url: String) { store.edit { it[KEY_SERVER_URL] = url } }
-    suspend fun setToken(token: String) { store.edit { it[KEY_TOKEN] = token } }
+    suspend fun setToken(token: String) {
+        store.edit { it[KEY_TOKEN] = if (token.isEmpty()) "" else TokenEncryptor.encrypt(token) }
+    }
     suspend fun setFontSize(size: Int) { store.edit { it[KEY_FONT_SIZE] = size } }
     suspend fun setDarkMode(dark: Boolean) { store.edit { it[KEY_DARK_MODE] = dark } }
     suspend fun setScrollbackLines(lines: Int) { store.edit { it[KEY_SCROLLBACK] = lines } }
