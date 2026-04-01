@@ -23,8 +23,8 @@
 
 ### Transport Security
 
-- [ ] **TLS-01**: Backend supports TLS via rustls with configurable cert/key paths in config.toml
-- [ ] **TLS-02**: SETUP.md documents TLS as mandatory for production with clear instructions
+- [x] **TLS-01**: Backend supports TLS via rustls with configurable cert/key paths in config.toml
+- [x] **TLS-02**: SETUP.md documents TLS as mandatory for production with clear instructions
 
 ### Android Token Security
 
@@ -74,8 +74,8 @@
 | TOK-03 | Phase 2 | Complete |
 | NET-01 | Phase 2 | Complete |
 | NET-02 | Phase 2 | Complete |
-| TLS-01 | Phase 3 | Pending |
-| TLS-02 | Phase 3 | Pending |
+| TLS-01 | Phase 3 | Complete |
+| TLS-02 | Phase 3 | Complete |
 | AND-01 | Phase 3 | Pending |
 | AND-02 | Phase 3 | Pending |
 | AND-03 | Phase 3 | Pending |
