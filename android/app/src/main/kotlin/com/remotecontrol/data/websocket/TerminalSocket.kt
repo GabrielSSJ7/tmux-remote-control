@@ -28,7 +28,9 @@ class TerminalSocket(
     private val _incoming = MutableSharedFlow<Frame>(extraBufferCapacity = 256)
     val incoming: SharedFlow<Frame> = _incoming
 
-    private var currentUrl: String? = null
+    private var currentBaseWsUrl: String? = null
+    private var currentSessionId: String? = null
+    private var currentToken: String? = null
 
     fun connect(baseUrl: String, sessionId: String, token: String) {
         disconnect()
@@ -38,17 +40,20 @@ class TerminalSocket(
             normalized.startsWith("http://") -> normalized.replaceFirst("http://", "ws://")
             else -> "ws://$normalized"
         }
-        val wsUrl = "$wsBase/sessions/$sessionId/terminal?token=$token"
-        currentUrl = wsUrl
+        val wsUrl = "$wsBase/sessions/$sessionId/terminal"
+        currentBaseWsUrl = wsBase
+        currentSessionId = sessionId
+        currentToken = token
         reconnector.reset()
-        doConnect(wsUrl)
+        doConnect(wsUrl, token)
     }
 
-    private fun doConnect(url: String) {
+    private fun doConnect(url: String, token: String) {
         _state.value = ConnectionState.CONNECTING
         val request = Request.Builder().url(url).build()
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
+                webSocket.send(Frame.Auth(token.toByteArray()).encode().toByteString())
                 _state.value = ConnectionState.CONNECTED
                 reconnector.reset()
                 consecutivePingFailures = 0
@@ -111,10 +116,13 @@ class TerminalSocket(
     }
 
     private fun scheduleReconnect() {
-        val url = currentUrl ?: return
+        val wsBase = currentBaseWsUrl ?: return
+        val sessionId = currentSessionId ?: return
+        val token = currentToken ?: return
+        val url = "$wsBase/sessions/$sessionId/terminal"
         reconnectJob = scope.launch {
             delay(reconnector.nextDelay())
-            doConnect(url)
+            doConnect(url, token)
         }
     }
 }
