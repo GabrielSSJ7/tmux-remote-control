@@ -34,6 +34,7 @@ pub async fn test_state() -> Arc<AppState> {
             scrollback_lines: 1000,
             default_shell: "/bin/bash".to_string(),
         },
+        tls: Default::default(),
     };
     Arc::new(AppState { db, config, rate_limiter: RateLimiter::new(100, 60, 3600) })
 }

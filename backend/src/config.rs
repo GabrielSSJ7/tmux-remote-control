@@ -2,11 +2,29 @@ use serde::{Deserialize, Serialize};
 use rand::Rng;
 use std::fmt;
 
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct TlsConfig {
+    pub cert_path: Option<String>,
+    pub key_path: Option<String>,
+}
+
+impl TlsConfig {
+    /// Returns true if both cert_path and key_path are set and non-empty.
+    pub fn is_enabled(&self) -> bool {
+        matches!(
+            (&self.cert_path, &self.key_path),
+            (Some(c), Some(k)) if !c.is_empty() && !k.is_empty()
+        )
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
     pub server: ServerConfig,
     pub auth: AuthConfig,
     pub terminal: TerminalConfig,
+    #[serde(default)]
+    pub tls: TlsConfig,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -135,6 +153,72 @@ default_shell = "/bin/bash"
         let toml_str = include_str!("../config.toml.example");
         let config: Config = toml::from_str(toml_str).unwrap();
         assert_eq!(config.server.host, "127.0.0.1");
+    }
+
+    #[test]
+    fn tls_config_with_section_parses_paths() {
+        let toml_str = r#"
+[server]
+host = "127.0.0.1"
+port = 9999
+
+[auth]
+token = "abc123"
+
+[terminal]
+scrollback_lines = 5000
+default_shell = "/bin/zsh"
+
+[tls]
+cert_path = "cert.pem"
+key_path = "key.pem"
+"#;
+        let config: Config = toml::from_str(toml_str).unwrap();
+        assert_eq!(config.tls.cert_path, Some("cert.pem".to_string()));
+        assert_eq!(config.tls.key_path, Some("key.pem".to_string()));
+        assert!(config.tls.is_enabled());
+    }
+
+    #[test]
+    fn tls_config_without_section_defaults_to_none() {
+        let toml_str = r#"
+[server]
+host = "127.0.0.1"
+port = 9999
+
+[auth]
+token = "abc123"
+
+[terminal]
+scrollback_lines = 5000
+default_shell = "/bin/zsh"
+"#;
+        let config: Config = toml::from_str(toml_str).unwrap();
+        assert_eq!(config.tls.cert_path, None);
+        assert_eq!(config.tls.key_path, None);
+        assert!(!config.tls.is_enabled());
+    }
+
+    #[test]
+    fn tls_config_empty_strings_treated_as_absent() {
+        let toml_str = r#"
+[server]
+host = "127.0.0.1"
+port = 9999
+
+[auth]
+token = "abc123"
+
+[terminal]
+scrollback_lines = 5000
+default_shell = "/bin/zsh"
+
+[tls]
+cert_path = ""
+key_path = ""
+"#;
+        let config: Config = toml::from_str(toml_str).unwrap();
+        assert!(!config.tls.is_enabled());
     }
 
     #[test]
