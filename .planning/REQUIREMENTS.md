@@ -13,7 +13,7 @@
 ### Token Transmission
 
 - [x] **TOK-01**: WebSocket authentication uses first binary frame instead of URL query parameter
-- [ ] **TOK-02**: Backend WebSocket handler validates auth frame before accepting terminal data
+- [x] **TOK-02**: Backend WebSocket handler validates auth frame before accepting terminal data
 - [x] **TOK-03**: Android TerminalSocket sends auth token as first frame after connection
 
 ### Token Logging
@@ -35,7 +35,7 @@
 ### Network Hardening
 
 - [x] **NET-01**: CorsLayer configured with explicit allowed origins instead of permissive()
-- [ ] **NET-02**: WebSocket endpoint applies rate limiting before token validation
+- [x] **NET-02**: WebSocket endpoint applies rate limiting before token validation
 - [x] **NET-03**: Default bind address changed from 0.0.0.0 to 127.0.0.1 in config.toml
 
 ## v2 Requirements
@@ -70,10 +70,10 @@
 | LOG-02 | Phase 1 | Complete |
 | NET-03 | Phase 1 | Complete |
 | TOK-01 | Phase 2 | Complete |
-| TOK-02 | Phase 2 | Pending |
+| TOK-02 | Phase 2 | Complete |
 | TOK-03 | Phase 2 | Complete |
 | NET-01 | Phase 2 | Complete |
-| NET-02 | Phase 2 | Pending |
+| NET-02 | Phase 2 | Complete |
 | TLS-01 | Phase 3 | Pending |
 | TLS-02 | Phase 3 | Pending |
 | AND-01 | Phase 3 | Pending |
