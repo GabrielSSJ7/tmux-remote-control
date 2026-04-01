@@ -1,39 +1,71 @@
+use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
-use axum::extract::{Path, Query, State};
+use axum::extract::{Path, State};
 use axum::response::IntoResponse;
 use portable_pty::{native_pty_system, CommandBuilder, PtySize};
+use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use subtle::ConstantTimeEq;
 use tokio::sync::mpsc;
+use tokio::time::{timeout, Duration};
 use crate::error::AppError;
 use crate::protocol::{Frame, SessionEventPayload};
 use crate::state::AppState;
 use crate::tmux::TmuxManager;
 
-#[derive(serde::Deserialize)]
-pub struct WsQuery {
-    token: String,
-}
-
-/// WebSocket handler that bridges a client connection to a tmux session via a PTY.
+/// WebSocket handler that applies rate limiting by IP before upgrade,
+/// then delegates to `handle_socket` for first-frame auth and PTY bridging.
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
     State(state): State<Arc<AppState>>,
     Path(session_id): Path<String>,
-    Query(query): Query<WsQuery>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> Result<impl IntoResponse, AppError> {
-    let expected = state.config.auth.token.as_bytes();
-    let provided = query.token.as_bytes();
-    if expected.len() != provided.len() || expected.ct_eq(provided).unwrap_u8() != 1 {
-        return Err(AppError::Unauthorized);
+    if !state.rate_limiter.check(addr.ip()) {
+        return Err(AppError::RateLimited);
     }
     if !TmuxManager::session_exists(&session_id).await {
         return Err(AppError::NotFound(format!("Session {} not found", session_id)));
     }
-    Ok(ws.on_upgrade(move |socket| handle_socket(socket, session_id)))
+    Ok(ws.on_upgrade(move |socket| handle_socket(socket, state.clone(), session_id, addr.ip())))
 }
 
-async fn handle_socket(mut socket: WebSocket, session_id: String) {
+async fn handle_socket(mut socket: WebSocket, state: Arc<AppState>, session_id: String, ip: IpAddr) {
+    match timeout(Duration::from_secs(10), socket.recv()).await {
+        Ok(Some(Ok(Message::Binary(data)))) => {
+            match Frame::decode(&data) {
+                Ok(Frame::Auth(token)) => {
+                    let expected = state.config.auth.token.as_bytes();
+                    let provided = token.as_slice();
+                    if expected.len() != provided.len() || expected.ct_eq(provided).unwrap_u8() != 1 {
+                        state.rate_limiter.record_failure(ip);
+                        let frame = Frame::SessionEvent(SessionEventPayload {
+                            event_type: "unauthorized".to_string(),
+                            session_id: session_id.clone(),
+                        });
+                        let _ = socket.send(Message::Binary(frame.encode().into())).await;
+                        let _ = socket.close().await;
+                        return;
+                    }
+                    state.rate_limiter.reset(ip);
+                }
+                _ => {
+                    let frame = Frame::SessionEvent(SessionEventPayload {
+                        event_type: "unauthorized".to_string(),
+                        session_id: session_id.clone(),
+                    });
+                    let _ = socket.send(Message::Binary(frame.encode().into())).await;
+                    let _ = socket.close().await;
+                    return;
+                }
+            }
+        }
+        _ => {
+            let _ = socket.close().await;
+            return;
+        }
+    }
+
     tracing::info!("WS connected for session: {}", session_id);
     let pty_system = native_pty_system();
     let size = PtySize {
