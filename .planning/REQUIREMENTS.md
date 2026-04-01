@@ -29,8 +29,8 @@
 ### Android Token Security
 
 - [x] **AND-01**: Auth token stored encrypted using Android Keystore AES-256-GCM in DataStore instead of plaintext DataStore
-- [ ] **AND-02**: Token field in SettingsScreen uses PasswordVisualTransformation (masked by default)
-- [ ] **AND-03**: MainActivity sets FLAG_SECURE to prevent screenshots and screen recording
+- [x] **AND-02**: Token field in SettingsScreen uses PasswordVisualTransformation (masked by default)
+- [x] **AND-03**: MainActivity sets FLAG_SECURE to prevent screenshots and screen recording
 
 ### Network Hardening
 
@@ -77,8 +77,8 @@
 | TLS-01 | Phase 3 | Complete |
 | TLS-02 | Phase 3 | Complete |
 | AND-01 | Phase 3 | Complete |
-| AND-02 | Phase 3 | Pending |
-| AND-03 | Phase 3 | Pending |
+| AND-02 | Phase 3 | Complete |
+| AND-03 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total
