@@ -25,6 +25,7 @@ pub async fn test_state() -> Arc<AppState> {
         server: ServerConfig {
             host: "127.0.0.1".to_string(),
             port: 0,
+            allowed_origins: vec!["http://localhost".to_string()],
         },
         auth: AuthConfig {
             token: TEST_TOKEN.to_string(),

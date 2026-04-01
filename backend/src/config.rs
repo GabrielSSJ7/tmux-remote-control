@@ -13,6 +13,8 @@ pub struct Config {
 pub struct ServerConfig {
     pub host: String,
     pub port: u16,
+    #[serde(default)]
+    pub allowed_origins: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -65,6 +67,7 @@ mod tests {
 [server]
 host = "127.0.0.1"
 port = 9999
+allowed_origins = ["http://localhost:3000"]
 
 [auth]
 token = "abc123"
@@ -77,6 +80,25 @@ default_shell = "/bin/zsh"
         assert_eq!(config.server.port, 9999);
         assert_eq!(config.auth.token, "abc123");
         assert_eq!(config.terminal.default_shell, "/bin/zsh");
+        assert_eq!(config.server.allowed_origins, vec!["http://localhost:3000"]);
+    }
+
+    #[test]
+    fn parses_config_without_allowed_origins() {
+        let toml_str = r#"
+[server]
+host = "127.0.0.1"
+port = 9999
+
+[auth]
+token = "abc123"
+
+[terminal]
+scrollback_lines = 5000
+default_shell = "/bin/zsh"
+"#;
+        let config: Config = toml::from_str(toml_str).unwrap();
+        assert!(config.server.allowed_origins.is_empty());
     }
 
     #[test]
