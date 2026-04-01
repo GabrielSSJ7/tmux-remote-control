@@ -12,6 +12,10 @@ sealed class Frame {
     data object Ping : Frame()
     data object Pong : Frame()
     data class SessionEvent(val eventType: String, val sessionId: String) : Frame()
+    data class Auth(val token: ByteArray) : Frame() {
+        override fun equals(other: Any?) = other is Auth && token.contentEquals(other.token)
+        override fun hashCode() = token.contentHashCode()
+    }
 
     fun encode(): ByteArray = when (this) {
         is Data -> byteArrayOf(TYPE_DATA) + payload
@@ -28,6 +32,7 @@ sealed class Frame {
             val json = gson.toJson(mapOf("event_type" to eventType, "session_id" to sessionId))
             byteArrayOf(TYPE_SESSION_EVENT) + json.toByteArray()
         }
+        is Auth -> byteArrayOf(TYPE_AUTH) + token
     }
 
     companion object {
@@ -36,6 +41,7 @@ sealed class Frame {
         private const val TYPE_PING: Byte = 0x02
         private const val TYPE_PONG: Byte = 0x03
         private const val TYPE_SESSION_EVENT: Byte = 0x04
+        private const val TYPE_AUTH: Byte = 0x05
         private val gson = Gson()
 
         fun decode(data: ByteArray): Frame {
@@ -55,6 +61,7 @@ sealed class Frame {
                     val map = gson.fromJson(json, Map::class.java) as Map<String, String>
                     SessionEvent(eventType = map["event_type"] ?: "", sessionId = map["session_id"] ?: "")
                 }
+                TYPE_AUTH -> Auth(data.copyOfRange(1, data.size))
                 else -> throw IllegalArgumentException("Unknown frame type: 0x${String.format("%02x", data[0])}")
             }
         }

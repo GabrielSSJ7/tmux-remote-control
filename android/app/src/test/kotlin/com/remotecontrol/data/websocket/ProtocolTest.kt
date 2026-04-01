@@ -56,4 +56,31 @@ class ProtocolTest {
     fun resizeTooShortThrows() {
         Frame.decode(byteArrayOf(0x01, 0x00))
     }
+
+    @Test
+    fun authFrameRoundtrip() {
+        val frame = Frame.Auth("my-secret-token".toByteArray())
+        val encoded = frame.encode()
+        assertEquals(0x05.toByte(), encoded[0])
+        val decoded = Frame.decode(encoded)
+        assertTrue(decoded is Frame.Auth)
+        assertArrayEquals("my-secret-token".toByteArray(), (decoded as Frame.Auth).token)
+    }
+
+    @Test
+    fun authFrameTypeByte() {
+        val encoded = Frame.Auth("test".toByteArray()).encode()
+        assertEquals(0x05.toByte(), encoded[0])
+    }
+
+    @Test
+    fun authFrameEmptyToken() {
+        val frame = Frame.Auth(byteArrayOf())
+        val encoded = frame.encode()
+        assertEquals(1, encoded.size)
+        assertEquals(0x05.toByte(), encoded[0])
+        val decoded = Frame.decode(encoded)
+        assertTrue(decoded is Frame.Auth)
+        assertArrayEquals(byteArrayOf(), (decoded as Frame.Auth).token)
+    }
 }
