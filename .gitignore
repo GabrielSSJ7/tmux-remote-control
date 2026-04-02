@@ -3,3 +3,6 @@ backend/config.toml
 *.key
 *.pem
 *.cert
+*.keystore
+*.jks
+local.properties
