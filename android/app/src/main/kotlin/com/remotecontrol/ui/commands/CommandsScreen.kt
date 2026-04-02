@@ -33,7 +33,7 @@ fun CommandsScreen(app: App, onBack: () -> Unit) {
     var menuCommand by remember { mutableStateOf<Command?>(null) }
     var showDeleteConfirm by remember { mutableStateOf<Command?>(null) }
 
-    LaunchedEffect(Unit) { vm.loadCommands() }
+    LaunchedEffect(vm) { vm.loadCommands() }
 
     Scaffold(
         topBar = {

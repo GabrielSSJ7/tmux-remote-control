@@ -20,7 +20,7 @@ fun CommandsSheet(app: App, onDismiss: () -> Unit, onCommandSelected: (Command) 
     val api = client?.commands ?: return
     val vm = remember(api) { CommandsViewModel(api) }
     val commands by vm.filteredCommands.collectAsState()
-    LaunchedEffect(Unit) { vm.loadCommands() }
+    LaunchedEffect(vm) { vm.loadCommands() }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.padding(horizontal = 16.dp)) {
