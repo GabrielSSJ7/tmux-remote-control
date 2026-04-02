@@ -22,37 +22,62 @@ class CommandsViewModelTest {
     @After fun tearDown() { Dispatchers.resetMain() }
 
     @Test
-    fun loadCommandsGroupsByCategory() = runTest {
+    fun loadCommandsReturnsFlatList() = runTest {
         coEvery { api.list() } returns listOf(
-            Command("1", "push", "git push", null, "git", null, "", ""),
-            Command("2", "status", "git status", null, "git", null, "", ""),
-            Command("3", "up", "docker compose up", null, "docker", null, "", ""),
+            Command("1", "push", "git push"),
+            Command("2", "status", "git status"),
+            Command("3", "up", "docker compose up"),
         )
         val vm = CommandsViewModel(api); vm.loadCommands(); advanceUntilIdle()
-        val grouped = vm.groupedCommands.value
-        assertEquals(2, grouped.size)
-        assertEquals(listOf("docker", "git"), grouped.keys.sorted())
+        assertEquals(3, vm.filteredCommands.value.size)
     }
 
     @Test
     fun searchFiltersCommands() = runTest {
         coEvery { api.list() } returns listOf(
-            Command("1", "push", "git push", null, "git", null, "", ""),
-            Command("2", "deploy", "kubectl deploy", null, "k8s", null, "", ""),
+            Command("1", "push", "git push"),
+            Command("2", "deploy", "kubectl deploy"),
         )
         val vm = CommandsViewModel(api); vm.loadCommands(); advanceUntilIdle()
         vm.setSearch("push"); advanceUntilIdle()
-        val grouped = vm.groupedCommands.value
-        assertEquals(1, grouped.size)
-        assertEquals("push", grouped["git"]?.first()?.name)
+        val filtered = vm.filteredCommands.value
+        assertEquals(1, filtered.size)
+        assertEquals("push", filtered.first().name)
     }
 
     @Test
     fun createCommandCallsApiAndReloads() = runTest {
         coEvery { api.list() } returns emptyList()
-        coEvery { api.create(any()) } returns Command("1", "test", "echo", null, "misc", null, "", "")
+        coEvery { api.create(any()) } returns Command("1", "test", "echo")
         val vm = CommandsViewModel(api)
-        vm.createCommand(CreateCommand("test", "echo", null, "misc")); advanceUntilIdle()
+        vm.createCommand("test", "echo"); advanceUntilIdle()
         coVerify { api.create(any()) }
+    }
+
+    @Test
+    fun deleteCommandCallsApiAndReloads() = runTest {
+        coEvery { api.list() } returns listOf(Command("1", "test", "echo"))
+        coEvery { api.delete("1") } returns Unit
+        val vm = CommandsViewModel(api); vm.loadCommands(); advanceUntilIdle()
+        vm.deleteCommand("1"); advanceUntilIdle()
+        coVerify { api.delete("1") }
+    }
+
+    @Test
+    fun updateCommandCallsApiAndReloads() = runTest {
+        coEvery { api.list() } returns emptyList()
+        coEvery { api.update(any(), any()) } returns Command("1", "updated", "echo updated")
+        val vm = CommandsViewModel(api)
+        vm.updateCommand("1", "updated", "echo updated"); advanceUntilIdle()
+        coVerify { api.update("1", any()) }
+    }
+
+    @Test
+    fun errorStateOnLoadFailure() = runTest {
+        coEvery { api.list() } throws RuntimeException("network error")
+        val vm = CommandsViewModel(api); vm.loadCommands(); advanceUntilIdle()
+        assertNotNull(vm.error.value)
+        vm.clearError()
+        assertNull(vm.error.value)
     }
 }

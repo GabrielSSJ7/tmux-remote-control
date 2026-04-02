@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.remotecontrol.App
+import com.remotecontrol.ui.commands.CommandsScreen
 import com.remotecontrol.ui.sessions.SessionsScreen
 import com.remotecontrol.ui.settings.SettingsScreen
 import com.remotecontrol.ui.terminal.TerminalScreen
@@ -19,6 +20,7 @@ fun NavGraph(app: App) {
             SessionsScreen(
                 app = app,
                 onSessionClick = { sessionName -> navController.navigate("terminal/$sessionName") },
+                onCommandsClick = { navController.navigate("commands") },
                 onSettingsClick = { navController.navigate("settings") },
             )
         }
@@ -28,6 +30,9 @@ fun NavGraph(app: App) {
         ) { backStackEntry ->
             val sessionId = backStackEntry.arguments?.getString("sessionId") ?: return@composable
             TerminalScreen(app = app, sessionId = sessionId, onBack = { navController.popBackStack() })
+        }
+        composable("commands") {
+            CommandsScreen(app = app, onBack = { navController.popBackStack() })
         }
         composable("settings") {
             SettingsScreen(app = app, onBack = { navController.popBackStack() })

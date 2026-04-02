@@ -5,24 +5,70 @@ import androidx.lifecycle.viewModelScope
 import com.remotecontrol.data.api.CommandsApi
 import com.remotecontrol.data.model.Command
 import com.remotecontrol.data.model.CreateCommand
-import com.remotecontrol.data.model.UpdateCommand
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CommandsViewModel(private val api: CommandsApi) : ViewModel() {
     private val _commands = MutableStateFlow<List<Command>>(emptyList())
     private val _search = MutableStateFlow("")
+    private val _error = MutableStateFlow<String?>(null)
 
-    val groupedCommands: StateFlow<Map<String, List<Command>>> =
+    val filteredCommands: StateFlow<List<Command>> =
         combine(_commands, _search) { commands, search ->
-            val filtered = if (search.isBlank()) commands
-            else commands.filter { it.name.contains(search, ignoreCase = true) || it.command.contains(search, ignoreCase = true) || it.category.contains(search, ignoreCase = true) }
-            filtered.groupBy { it.category }.toSortedMap()
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+            if (search.isBlank()) commands
+            else commands.filter {
+                it.name.contains(search, ignoreCase = true) ||
+                    it.command.contains(search, ignoreCase = true)
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    fun loadCommands() { viewModelScope.launch { try { _commands.value = api.list() } catch (_: Exception) {} } }
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    fun loadCommands() {
+        viewModelScope.launch {
+            try {
+                _commands.value = api.list()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Failed to load commands"
+            }
+        }
+    }
+
     fun setSearch(query: String) { _search.value = query }
-    fun createCommand(input: CreateCommand) { viewModelScope.launch { try { api.create(input); loadCommands() } catch (_: Exception) {} } }
-    fun updateCommand(id: String, input: UpdateCommand) { viewModelScope.launch { try { api.update(id, input); loadCommands() } catch (_: Exception) {} } }
-    fun deleteCommand(id: String) { viewModelScope.launch { try { api.delete(id); loadCommands() } catch (_: Exception) {} } }
+
+    fun createCommand(name: String, command: String) {
+        viewModelScope.launch {
+            try {
+                api.create(CreateCommand(name = name, command = command))
+                loadCommands()
+            } catch (e: Exception) {
+                _error.value = "Failed to create command"
+            }
+        }
+    }
+
+    fun updateCommand(id: String, name: String, command: String) {
+        viewModelScope.launch {
+            try {
+                api.update(id, CreateCommand(name = name, command = command))
+                loadCommands()
+            } catch (e: Exception) {
+                _error.value = "Failed to update command"
+            }
+        }
+    }
+
+    fun deleteCommand(id: String) {
+        viewModelScope.launch {
+            try {
+                api.delete(id)
+                loadCommands()
+            } catch (e: Exception) {
+                _error.value = "Failed to delete command"
+            }
+        }
+    }
+
+    fun clearError() { _error.value = null }
 }

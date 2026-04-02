@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.remotecontrol.App
 import com.remotecontrol.data.websocket.ConnectionState
 import com.remotecontrol.terminal.TerminalRenderer
+import com.remotecontrol.ui.commands.CommandUtils
 import com.remotecontrol.ui.commands.CommandsSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,5 +106,11 @@ fun TerminalScreen(app: App, sessionId: String, onBack: () -> Unit) {
             }
         }
     }
-    if (showCommands) { CommandsSheet(app = app, onDismiss = { showCommands = false }, onCommandSelected = { command -> vm.sendInput(command.command + "\n"); showCommands = false }) }
+    if (showCommands) {
+        CommandsSheet(app = app, onDismiss = { showCommands = false }, onCommandSelected = { command ->
+            val text = command.command
+            if (CommandUtils.hasControlChars(text)) vm.sendInput(text) else vm.sendInput(text + "\n")
+            showCommands = false
+        })
+    }
 }

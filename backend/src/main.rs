@@ -16,7 +16,7 @@ async fn main() {
     let db = db::init_pool("sqlite:data.db?mode=rwc")
         .await
         .expect("Failed to init database");
-    let rate_limiter = RateLimiter::new(5, 60, 3600);
+    let rate_limiter = RateLimiter::new(60, 60, 3600);
 
     let state = Arc::new(AppState {
         db,
